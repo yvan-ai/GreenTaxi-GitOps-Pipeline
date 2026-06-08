@@ -1,0 +1,38 @@
+# Terraform
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.backup
+*.tfplan
+# Never commit the Terraform binary or its archive
+terraform/terraform
+terraform_*.zip
+
+# Scripts / secrets
+tf.zip
+install_tf.py
+setup_env.py
+deploy.sh
+.env
+*.env
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# dbt
+GreenTaxi/target/
+GreenTaxi/dbt_packages/
+GreenTaxi/logs/
+
+# IDE / tooling
+.idea/
+.vscode/
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
