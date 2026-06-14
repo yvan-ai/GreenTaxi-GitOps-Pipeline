@@ -1,0 +1,12 @@
+greentaxi:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('DB_HOST', 'localhost') }}"
+      user: "{{ env_var('DB_USER', 'user') }}"
+      password: "{{ env_var('DB_PASSWORD', 'pass') }}"
+      port: "{{ env_var('DB_PORT', 5432) | as_number }}"
+      dbname: "{{ env_var('DB_NAME', 'greentaxi') }}"
+      schema: "{{ env_var('DB_SCHEMA', 'public') }}"
+      threads: 4

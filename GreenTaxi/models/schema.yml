@@ -1,0 +1,34 @@
+version: 2
+
+models:
+  - name: stg_green_tripdata
+    description: "Staging model for NYC Green Taxi trip data: cleaned and renamed source columns."
+    columns:
+      - name: vendor_id
+        description: "A code indicating the TPEP provider that provided the record."
+        tests:
+          - not_null
+      - name: pickup_datetime
+        description: "Timestamp when the meter was engaged."
+        tests:
+          - not_null
+      - name: total_amount
+        description: "Total amount charged to passengers (excludes cash tips)."
+        tests:
+          - not_null
+
+  - name: fct_monthly_revenue
+    description: "Aggregated monthly revenue and trip metrics per vendor for Green Taxis."
+    columns:
+      - name: revenue_month
+        description: "The month of the revenue (truncated pickup date)."
+        tests:
+          - not_null
+      - name: vendor_id
+        description: "The TPEP provider the revenue is attributed to."
+        tests:
+          - not_null
+      - name: revenue_monthly_total_amount
+        description: "Total amount collected in the month."
+        tests:
+          - not_null
