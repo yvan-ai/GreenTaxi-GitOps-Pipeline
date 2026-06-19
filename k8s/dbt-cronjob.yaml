@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: greentaxi-dbt-run
+  namespace: default
+spec:
+  schedule: "0 0 * * *" # Every night at midnight
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: dbt
+            image: ghcr.io/yvan-ai/greentaxi-dbt:3968eacf5c3e4cd8334e9b747625597f3e7bb087
+            imagePullPolicy: Always
+            env:
+            - name: DB_HOST
+              value: "postgres-service"
+            - name: DB_USER
+              value: "postgres"
+            - name: DB_PASSWORD
+              value: "postgres"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              value: "greentaxi"
+          restartPolicy: OnFailure
