@@ -12,8 +12,8 @@ with trip_data as (
     {% if is_incremental() %}
     -- Only recompute months that received new data since the last run
         where date_trunc('month', pickup_datetime) >= (
-            select coalesce(max(existing.revenue_month), '1900-01-01'::timestamp)
-            from {{ this }} as existing
+            select coalesce(max(mart.revenue_month), '1900-01-01'::timestamp)
+            from {{ this }} as mart
         )
     {% endif %}
 )

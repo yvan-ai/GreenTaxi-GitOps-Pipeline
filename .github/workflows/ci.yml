@@ -38,7 +38,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install dbt-core dbt-postgres sqlfluff pandas pyarrow sqlalchemy
+        run: pip install dbt-core dbt-postgres 'sqlfluff==4.2.2' pandas pyarrow sqlalchemy
 
       - name: Lint SQL (SQLFluff)
         run: sqlfluff lint GreenTaxi/models --dialect postgres
