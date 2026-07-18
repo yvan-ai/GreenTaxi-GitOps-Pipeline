@@ -1,7 +1,21 @@
-{{ config(materialized='table') }}
+{{
+    config(
+        materialized='incremental',
+        incremental_strategy='delete+insert',
+        unique_key=['vendor_id', 'revenue_month']
+    )
+}}
 
 with trip_data as (
     select * from {{ ref('stg_green_tripdata') }}
+
+    {% if is_incremental() %}
+    -- Only recompute months that received new data since the last run
+        where date_trunc('month', pickup_datetime) >= (
+            select coalesce(max(existing.revenue_month), '1900-01-01'::timestamp)
+            from {{ this }} as existing
+        )
+    {% endif %}
 )
 
 select
