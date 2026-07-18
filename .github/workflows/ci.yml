@@ -38,12 +38,21 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install dbt-core dbt-postgres sqlfluff
+        run: pip install dbt-core dbt-postgres sqlfluff pandas pyarrow sqlalchemy
 
       - name: Lint SQL (SQLFluff)
         run: sqlfluff lint GreenTaxi/models --dialect postgres
 
-      - name: Run dbt build (parse + run + test)
+      - name: Ingest NYC TLC sample data
+        env:
+          DB_HOST: localhost
+          DB_USER: user
+          DB_PASSWORD: pass
+          DB_PORT: 5432
+          DB_NAME: greentaxi
+        run: python ingestion/load_green_tripdata.py 2021-01
+
+      - name: Run dbt build (parse + freshness + run + test)
         env:
           DB_HOST: localhost
           DB_USER: user
@@ -53,6 +62,7 @@ jobs:
         run: |
           cd GreenTaxi
           dbt parse --profiles-dir .
+          dbt source freshness --profiles-dir .
           dbt build --profiles-dir .
           echo "✅ dbt models built and tested successfully."
 

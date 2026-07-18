@@ -1,16 +1,20 @@
 .DEFAULT_GOAL := help
-.PHONY: help setup lint format test run build infra-up infra-down clean
+.PHONY: help setup lint format test run build ingest infra-up infra-down clean
 
 DBT_DIR := GreenTaxi
 IMAGE   := ghcr.io/yvan-ai/greentaxi-dbt:local
+MONTHS  ?= 2021-01
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-14s\033[0m %s\n", $$1, $$2}'
 
 setup: ## Install Python & dbt dependencies and pre-commit hooks
-	pip install dbt-core dbt-postgres pre-commit sqlfluff
+	pip install dbt-core dbt-postgres pre-commit sqlfluff pandas pyarrow sqlalchemy
 	pre-commit install
+
+ingest: ## Load NYC TLC green taxi data into Postgres (MONTHS="2021-01 2021-02")
+	python ingestion/load_green_tripdata.py $(MONTHS)
 
 lint: ## Lint SQL (SQLFluff) and Terraform
 	sqlfluff lint $(DBT_DIR)/models --dialect postgres
