@@ -1,0 +1,44 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: greentaxi-envs
+  namespace: argocd
+spec:
+  goTemplate: true
+  generators:
+    - list:
+        elements:
+          - env: dev
+            autoSync: true
+          - env: staging
+            autoSync: true
+          # Prod is promoted manually: an operator reviews the diff in ArgoCD
+          # and clicks Sync (or runs `argocd app sync greentaxi-prod`).
+          - env: prod
+            autoSync: false
+  template:
+    metadata:
+      name: "greentaxi-{{.env}}"
+      labels:
+        app.kubernetes.io/part-of: greentaxi
+        env: "{{.env}}"
+    spec:
+      project: default
+      source:
+        repoURL: "https://github.com/yvan-ai/GreenTaxi-GitOps-Pipeline"
+        targetRevision: HEAD
+        path: "k8s/envs/{{.env}}"
+      destination:
+        server: "https://kubernetes.default.svc"
+        namespace: "greentaxi-{{.env}}"
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
+  templatePatch: |
+    {{- if .autoSync }}
+    spec:
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+    {{- end }}

@@ -2,7 +2,6 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: greentaxi-dbt-run
-  namespace: default
 spec:
   schedule: "0 0 * * *" # Every night at midnight
   jobTemplate:

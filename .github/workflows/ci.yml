@@ -160,8 +160,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
-          sed -i "s|image: ghcr.io/yvan-ai/greentaxi-dbt:.*|image: ghcr.io/yvan-ai/greentaxi-dbt:${{ github.sha }}|g" k8s/dbt-cronjob.yaml
-          
-          git add k8s/dbt-cronjob.yaml
+          sed -i "s|image: ghcr.io/yvan-ai/greentaxi-dbt:.*|image: ghcr.io/yvan-ai/greentaxi-dbt:${{ github.sha }}|g" k8s/base/dbt-cronjob.yaml
+
+          git add k8s/base/dbt-cronjob.yaml
           git commit -m "chore: bump dbt image to ${{ github.sha }} [skip ci]" || echo "No changes to commit"
           git push

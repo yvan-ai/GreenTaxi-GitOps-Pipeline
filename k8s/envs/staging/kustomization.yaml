@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: greentaxi-staging
+
+resources:
+  - ../../base
+
+patches:
+  # Staging mirrors prod cadence, offset to 2am to spread load
+  - target:
+      kind: CronJob
+      name: greentaxi-dbt-run
+    patch: |-
+      - op: replace
+        path: /spec/schedule
+        value: "0 2 * * *"
