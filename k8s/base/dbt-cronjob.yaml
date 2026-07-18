@@ -10,7 +10,7 @@ spec:
         spec:
           containers:
           - name: dbt
-            image: ghcr.io/yvan-ai/greentaxi-dbt:92e052d44fe826425f802324fd4a96c48787ec42
+            image: ghcr.io/yvan-ai/greentaxi-dbt:5153a550da4321769b068cab5bf844d6125aa91d
             imagePullPolicy: Always
             env:
             - name: DB_HOST
