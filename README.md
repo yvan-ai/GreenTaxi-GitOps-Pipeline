@@ -11,6 +11,9 @@
 
 This project demonstrates an end-to-end **Data Engineering + Platform Engineering** workflow: infrastructure as code, containerized dbt transformations, continuous integration, and declarative GitOps delivery via ArgoCD.
 
+**Evaluate it without installing anything:**
+📖 [Live dbt docs & lineage](https://yvan-ai.github.io/GreenTaxi-GitOps-Pipeline/) · ⚙️ [CI runs](https://github.com/yvan-ai/GreenTaxi-GitOps-Pipeline/actions) · 📦 [Container image](https://github.com/yvan-ai/GreenTaxi-GitOps-Pipeline/pkgs/container/greentaxi-dbt) · 📸 [Screenshots below](#-see-it-in-action)
+
 ---
 
 ## 🏗️ Architecture
@@ -54,6 +57,41 @@ flowchart LR
 ```
 
 **The core loop:** the Git repository is the single source of truth. CI validates and builds; ArgoCD continuously reconciles the cluster to match Git. Infrastructure drift is impossible — ArgoCD prunes and self-heals any manual change.
+
+---
+
+## 📸 See it in action
+
+**The three environments, reconciled by one ApplicationSet** — dev & staging auto-sync; prod waits for a reviewed, one-click promotion:
+
+![ArgoCD applications: dev, staging, prod and monitoring all Synced and Healthy](docs/img/argocd-applications.png)
+
+**Inside `greentaxi-prod` after promotion** — ArgoCD renders the full resource tree it manages: Postgres, its Service, and the nightly dbt CronJob, all Healthy on the promoted commit:
+
+![ArgoCD resource tree of the prod application after manual promotion](docs/img/argocd-prod-promotion.png)
+
+**Anatomy of a real deployment** (commit [`f09b783`](https://github.com/yvan-ai/GreenTaxi-GitOps-Pipeline/commit/f09b783), as it actually happened):
+
+| Time | What happened | Human involved? |
+|------|---------------|:---:|
+| T+0 | `git push` — remove hardcoded secrets, new entrypoint | the only step |
+| T+2 min | CI green: lint, 76,518 rows ingested, dbt build 8/8, image pushed to GHCR | no |
+| T+3 min | Bot commit [`2b42c38`](https://github.com/yvan-ai/GreenTaxi-GitOps-Pipeline/commit/2b42c38) bumps the image tag in `k8s/base/` | no |
+| T+6 min | ArgoCD auto-syncs **dev** and **staging** to the new image | no |
+| T+18 min | Operator reviews the diff in ArgoCD and promotes **prod** | one click |
+
+### Sample output — what the pipeline produces
+
+`fct_monthly_revenue`, built from real NYC TLC data (first ingested months):
+
+| vendor_id | month | total revenue ($) | trips | avg distance (mi) |
+|:---:|:---:|---:|---:|---:|
+| 1 | 2021-01 | 112,113.25 | 7,247 | 2.28 |
+| 2 | 2021-01 | 1,691,775.50 | 69,268 | 44.90 |
+| 1 | 2021-02 | 102,116.49 | 6,590 | 2.36 |
+| 2 | 2021-02 | 1,411,322.58 | 57,980 | 19.73 |
+
+*(Yes, vendor 2's average distance is suspicious — real-world TLC data ships with GPS outliers. Cleaning them is what the staging layer is for, and exactly the kind of discussion this project is built to support.)*
 
 ---
 
@@ -143,7 +181,8 @@ GreenTaxi-GitOps-Pipeline/
 │   └── monitoring/          # PrometheusRule alerts + Grafana dashboard
 ├── docs/
 │   ├── architecture.md      # Detailed architecture & data flow
-│   └── decisions/           # Architecture Decision Records (ADRs)
+│   ├── decisions/           # Architecture Decision Records (ADRs)
+│   └── img/                 # Screenshots (ArgoCD, Grafana)
 ├── Makefile                 # Standardized entry points
 ├── .pre-commit-config.yaml  # SQLFluff + Terraform hooks
 ├── PRD.md / TECH_SPEC.md    # Product & technical specifications
