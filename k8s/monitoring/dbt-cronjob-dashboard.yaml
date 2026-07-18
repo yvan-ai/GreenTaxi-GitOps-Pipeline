@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: greentaxi-dbt-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1" # picked up by the Grafana dashboard sidecar
+data:
+  greentaxi-dbt.json: |
+    {
+      "title": "GreenTaxi dbt pipeline",
+      "uid": "greentaxi-dbt",
+      "tags": ["greentaxi", "dbt"],
+      "timezone": "browser",
+      "schemaVersion": 39,
+      "refresh": "1m",
+      "time": {"from": "now-7d", "to": "now"},
+      "panels": [
+        {
+          "id": 1,
+          "type": "stat",
+          "title": "Job runs succeeded (7d)",
+          "gridPos": {"h": 6, "w": 6, "x": 0, "y": 0},
+          "targets": [{"expr": "sum(kube_job_status_succeeded{job_name=~\"greentaxi-dbt.*\"})", "refId": "A"}],
+          "fieldConfig": {"defaults": {"color": {"mode": "fixed", "fixedColor": "green"}}}
+        },
+        {
+          "id": 2,
+          "type": "stat",
+          "title": "Job runs failed (7d)",
+          "gridPos": {"h": 6, "w": 6, "x": 6, "y": 0},
+          "targets": [{"expr": "sum(kube_job_status_failed{job_name=~\"greentaxi-dbt.*\"}) or vector(0)", "refId": "A"}],
+          "fieldConfig": {"defaults": {"color": {"mode": "fixed", "fixedColor": "red"}}}
+        },
+        {
+          "id": 3,
+          "type": "stat",
+          "title": "Hours since last run start",
+          "gridPos": {"h": 6, "w": 6, "x": 12, "y": 0},
+          "targets": [{"expr": "(time() - max(kube_job_status_start_time{job_name=~\"greentaxi-dbt.*\"})) / 3600", "refId": "A"}],
+          "fieldConfig": {"defaults": {"unit": "h", "decimals": 1, "thresholds": {"steps": [{"color": "green", "value": null}, {"color": "orange", "value": 26}, {"color": "red", "value": 48}]}}}
+        },
+        {
+          "id": 4,
+          "type": "stat",
+          "title": "dbt pods running",
+          "gridPos": {"h": 6, "w": 6, "x": 18, "y": 0},
+          "targets": [{"expr": "sum(kube_pod_status_phase{phase=\"Running\", pod=~\"greentaxi-dbt.*\"}) or vector(0)", "refId": "A"}]
+        },
+        {
+          "id": 5,
+          "type": "timeseries",
+          "title": "dbt job pod activity",
+          "gridPos": {"h": 8, "w": 24, "x": 0, "y": 6},
+          "targets": [{"expr": "sum by (pod) (kube_pod_status_phase{pod=~\"greentaxi-dbt.*\", phase=~\"Running|Succeeded|Failed\"})", "refId": "A", "legendFormat": "{{pod}}"}]
+        }
+      ]
+    }

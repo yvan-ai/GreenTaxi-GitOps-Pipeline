@@ -1,0 +1,27 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: greentaxi-dbt-alerts
+  namespace: monitoring
+  labels:
+    release: monitoring # required by the kube-prometheus-stack rule selector
+spec:
+  groups:
+    - name: greentaxi-dbt
+      rules:
+        - alert: GreenTaxiDbtJobFailed
+          expr: kube_job_status_failed{job_name=~"greentaxi-dbt-run.*"} > 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "GreenTaxi dbt job failed"
+            description: "Job {{ $labels.job_name }} in namespace {{ $labels.namespace }} has {{ $value }} failed pod(s)."
+        - alert: GreenTaxiDbtJobMissing
+          expr: time() - max(kube_job_status_start_time{job_name=~"greentaxi-dbt-run.*"}) > 172800
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "GreenTaxi dbt job has not run in 48h"
+            description: "The nightly dbt CronJob has not started a run in more than 48 hours."

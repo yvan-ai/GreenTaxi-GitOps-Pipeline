@@ -16,7 +16,7 @@ resource "helm_release" "argocd" {
     name  = "server.service.type"
     value = "NodePort"
   }
-  
+
   # Set admin password to empty so it auto-generates one, or can be overridden
   # Actually, Argo automatically creates an admin password stored in a Secret.
 }
