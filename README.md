@@ -159,6 +159,7 @@ Key design choices are documented as Architecture Decision Records:
 - [ADR 0001 — ArgoCD for GitOps delivery](docs/decisions/0001-use-argocd-for-gitops.md)
 - [ADR 0002 — dbt + PostgreSQL for the transformation layer](docs/decisions/0002-use-dbt-with-postgres.md)
 - [ADR 0003 — Multi-environment promotion with ApplicationSets](docs/decisions/0003-multi-env-with-applicationsets.md)
+- [ADR 0004 — Secrets provisioned by Terraform, never stored in Git](docs/decisions/0004-secrets-outside-git.md)
 
 📖 **[Browse the dbt docs & lineage graph](https://yvan-ai.github.io/GreenTaxi-GitOps-Pipeline/)** (auto-published by CI)
 
@@ -189,9 +190,11 @@ See [docs/architecture.md](docs/architecture.md) for the full data flow, quality
 - [x] Add Prometheus/Grafana monitoring for the CronJob
 - [x] Multi-environment promotion (dev → staging → prod) via ArgoCD ApplicationSets
 
+- [x] No secrets in Git — Terraform-generated credentials per environment ([ADR 0004](docs/decisions/0004-secrets-outside-git.md))
+
 **Next up:**
 
-- [ ] Store secrets in External Secrets / Sealed Secrets instead of plain env vars
+- [ ] External Secrets Operator backed by a managed vault (cloud deployment)
 - [ ] Slack notifications on ArgoCD sync failures and Prometheus alerts
 - [ ] Data quality expansion: `unique`, `accepted_values` and relationship tests
 

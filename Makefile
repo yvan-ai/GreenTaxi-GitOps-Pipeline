@@ -31,7 +31,7 @@ run: ## Run dbt models against the configured Postgres target
 	cd $(DBT_DIR) && dbt run --profiles-dir .
 
 build: ## Build the dbt Docker image locally
-	docker build -t $(IMAGE) $(DBT_DIR)
+	docker build -f $(DBT_DIR)/Dockerfile -t $(IMAGE) .
 
 infra-up: ## Provision ArgoCD on the cluster via Terraform
 	terraform -chdir=terraform init

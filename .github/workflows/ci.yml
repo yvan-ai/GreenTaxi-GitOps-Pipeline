@@ -149,7 +149,8 @@ jobs:
       - name: Build and Push Docker image
         uses: docker/build-push-action@v4
         with:
-          context: ./GreenTaxi
+          context: .
+          file: ./GreenTaxi/Dockerfile
           push: true
           tags: |
             ghcr.io/yvan-ai/greentaxi-dbt:${{ github.sha }}

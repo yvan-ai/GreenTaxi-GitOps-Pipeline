@@ -7,6 +7,11 @@ resource "kubernetes_namespace" "monitoring" {
 # Prometheus + Grafana + Alertmanager + kube-state-metrics in one chart.
 # The release is named "monitoring": PrometheusRule resources delivered by
 # GitOps must carry the label `release: monitoring` to be picked up.
+resource "random_password" "grafana_admin" {
+  length  = 24
+  special = false
+}
+
 resource "helm_release" "kube_prometheus_stack" {
   name       = "monitoring"
   repository = "https://prometheus-community.github.io/helm-charts"
@@ -19,6 +24,12 @@ resource "helm_release" "kube_prometheus_stack" {
   set {
     name  = "grafana.service.type"
     value = "NodePort"
+  }
+  # Override the chart's well-known default admin password.
+  # Retrieve it with: terraform output -raw grafana_admin_password
+  set_sensitive {
+    name  = "grafana.adminPassword"
+    value = random_password.grafana_admin.result
   }
   set {
     name  = "prometheus.prometheusSpec.retention"
